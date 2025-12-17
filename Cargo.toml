@@ -1,0 +1,28 @@
+[package]
+name = "rpc-shared-api"
+version = "0.1.0"
+edition = "2021"
+description = "Shared RPC API definitions and types for FastEVM consensus"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/scalar-org/rpc-shared-api"
+
+[dependencies]
+# Core serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# RPC framework
+jsonrpsee = { version = "0.23", features = ["server", "client", "macros"] }
+
+# Primitive types
+alloy-primitives = "0.5"
+bytes = "1.5"
+
+# Base64 encoding for digest display
+base64 = "0.22"
+
+# Error handling (optional, for transaction conversions)
+anyhow = "1.0"
+
+[dev-dependencies]
+tokio-test = "0.4"
