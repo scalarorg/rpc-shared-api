@@ -29,10 +29,13 @@ mod tests {
         BlockRef { digest, round }
     }
 
-    fn create_test_commit_ref(round: u64) -> CommitRef {
+    fn create_test_commit_ref(index: usize) -> CommitRef {
         let mut digest = [0u8; 32];
-        digest[0] = round as u8;
-        CommitRef { digest, round }
+        digest[0] = index as u8;
+        CommitRef {
+            digest,
+            index: index,
+        }
     }
 
     #[test]

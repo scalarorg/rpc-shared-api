@@ -24,7 +24,7 @@ pub struct CommitRef {
     /// The digest of the commit
     pub digest: [u8; DIGEST_LENGTH],
     /// The round number
-    pub round: u64,
+    pub index: usize,
 }
 
 /// Block timestamp in milliseconds
@@ -104,7 +104,7 @@ mod tests {
     fn test_commit_ref_default() {
         let commit_ref = CommitRef::default();
         assert_eq!(commit_ref.digest, [0u8; DIGEST_LENGTH]);
-        assert_eq!(commit_ref.round, 0);
+        assert_eq!(commit_ref.index, 0);
     }
 
     #[test]
@@ -113,15 +113,15 @@ mod tests {
         digest1[0] = 2;
         let commit_ref1 = CommitRef {
             digest: digest1,
-            round: 20,
+            index: 20,
         };
         let commit_ref2 = CommitRef {
             digest: digest1,
-            round: 20,
+            index: 20,
         };
         let commit_ref3 = CommitRef {
             digest: digest1,
-            round: 21,
+            index: 21,
         };
         assert_eq!(commit_ref1, commit_ref2);
         assert_ne!(commit_ref1, commit_ref3);
@@ -131,7 +131,7 @@ mod tests {
     fn test_commit_ref_serialization() {
         let mut digest = [0u8; DIGEST_LENGTH];
         digest[0] = 99;
-        let commit_ref = CommitRef { digest, round: 200 };
+        let commit_ref = CommitRef { digest, index: 200 };
         let serialized = serde_json::to_string(&commit_ref).unwrap();
         let deserialized: CommitRef = serde_json::from_str(&serialized).unwrap();
         assert_eq!(commit_ref, deserialized);
