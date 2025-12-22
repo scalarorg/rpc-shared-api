@@ -18,9 +18,7 @@ pub struct SignedBlock {
 }
 
 impl SignedBlock {
-    /// Should only be used when constructing the genesis blocks
-    #[allow(dead_code)] // Used in tests
-    pub(crate) fn new_genesis(block: Block) -> Self {
+    pub fn new(block: Block) -> Self {
         Self {
             inner: block,
             signature: Vec::new(),
