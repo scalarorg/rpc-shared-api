@@ -32,18 +32,15 @@ mod tests {
         BlockRef { digest, round }
     }
 
-    fn create_test_commit_ref(index: usize) -> CommitRef {
+    fn create_test_commit_ref(round: usize) -> CommitRef {
         let mut digest = [0u8; 32];
-        digest[0] = index as u8;
-        CommitRef {
-            digest,
-            index: index,
-        }
+        digest[0] = round as u8;
+        CommitRef { digest, round }
     }
 
     fn create_test_committed_subdag() -> CommittedSubDag {
         let transactions = vec![Transaction::new(vec![1, 2, 3])];
-        let block = SignedBlock::new_genesis(transactions);
+        let block = SignedBlock::new(transactions);
         let mut digest = [0u8; 32];
         digest[0] = 1;
         let verified_block = VerifiedBlock {

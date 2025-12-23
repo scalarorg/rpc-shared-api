@@ -91,26 +91,26 @@ mod tests {
     use crate::types::Transaction;
 
     #[test]
-    fn test_signed_block_new_genesis() {
+    fn test_signed_block_new() {
         let transactions = vec![
             Transaction::new(vec![1, 2, 3]),
             Transaction::new(vec![4, 5, 6]),
         ];
-        let block = SignedBlock::new_genesis(transactions.clone());
+        let block = SignedBlock::new(transactions.clone());
         assert_eq!(block.transactions(), &transactions);
     }
 
     #[test]
     fn test_signed_block_transactions() {
         let transactions = vec![Transaction::new(vec![10, 20, 30])];
-        let block = SignedBlock::new_genesis(transactions.clone());
+        let block = SignedBlock::new(transactions.clone());
         assert_eq!(block.transactions(), &transactions);
     }
 
     #[test]
     fn test_signed_block_clear_signature() {
         let transactions = vec![Transaction::new(vec![1, 2, 3])];
-        let mut block = SignedBlock::new_genesis(transactions);
+        let mut block = SignedBlock::new(transactions);
         block.clear_signature();
         // Signature should be cleared (empty)
         // Note: We can't directly access signature, but clear_signature should work
@@ -128,13 +128,34 @@ mod tests {
             Transaction::new(vec![1, 2, 3]),
             Transaction::new(vec![4, 5, 6]),
         ];
-        let block = SignedBlock::new_genesis(transactions);
+        let block = SignedBlock::new(transactions.clone());
         let serialized = serde_json::to_string(&block).unwrap();
         let deserialized: SignedBlock = serde_json::from_str(&serialized).unwrap();
         assert_eq!(
             block.transactions().len(),
             deserialized.transactions().len()
         );
+        assert_eq!(block.transactions(), deserialized.transactions());
+        // Verify transaction data is preserved
+        for (orig, deser) in block
+            .transactions()
+            .iter()
+            .zip(deserialized.transactions().iter())
+        {
+            assert_eq!(orig.data(), deser.data());
+        }
+    }
+
+    #[test]
+    fn test_signed_block_clone() {
+        let transactions = vec![
+            Transaction::new(vec![1, 2, 3]),
+            Transaction::new(vec![4, 5, 6]),
+        ];
+        let block1 = SignedBlock::new(transactions.clone());
+        let block2 = block1.clone();
+        assert_eq!(block1.transactions(), block2.transactions());
+        assert_eq!(block1.transactions().len(), block2.transactions().len());
     }
 
     #[test]
