@@ -53,17 +53,14 @@ mod tests {
         BlockRef { digest, round }
     }
 
-    fn create_test_commit_ref(index: usize) -> CommitRef {
+    fn create_test_commit_ref(round: usize) -> CommitRef {
         let mut digest = [0u8; 32];
-        digest[0] = index as u8;
-        CommitRef {
-            digest,
-            index: index,
-        }
+        digest[0] = round as u8;
+        CommitRef { digest, round }
     }
 
     fn create_test_signed_block(transactions: Vec<Transaction>) -> SignedBlock {
-        SignedBlock::new_genesis(transactions)
+        SignedBlock::new(transactions)
     }
 
     fn create_test_verified_block(transactions: Vec<Transaction>) -> VerifiedBlock {
@@ -137,22 +134,50 @@ mod tests {
 
     #[test]
     fn test_committed_subdag_serialization() {
+        let leader = create_test_block_ref(1);
+        let commit_ref = create_test_commit_ref(1);
         let block = create_test_verified_block(vec![Transaction::new(vec![1, 2, 3])]);
         let subdag = CommittedSubDag {
-            leader: create_test_block_ref(1),
+            leader,
             blocks: vec![block],
             timestamp_ms: 1234567890,
-            commit_ref: create_test_commit_ref(1),
+            commit_ref,
             reputation_scores_desc: vec![(0, 100), (1, 90)],
         };
         let serialized = serde_json::to_string(&subdag).unwrap();
         let deserialized: CommittedSubDag = serde_json::from_str(&serialized).unwrap();
         assert_eq!(subdag.timestamp_ms, deserialized.timestamp_ms);
         assert_eq!(subdag.blocks.len(), deserialized.blocks.len());
+        assert_eq!(subdag.leader, deserialized.leader);
+        assert_eq!(subdag.commit_ref, deserialized.commit_ref);
         assert_eq!(
-            subdag.reputation_scores_desc.len(),
-            deserialized.reputation_scores_desc.len()
+            subdag.reputation_scores_desc,
+            deserialized.reputation_scores_desc
         );
+        // Verify transaction data is preserved
+        assert_eq!(
+            subdag.flatten_transactions(),
+            deserialized.flatten_transactions()
+        );
+    }
+
+    #[test]
+    fn test_committed_subdag_clone() {
+        let subdag = CommittedSubDag {
+            leader: create_test_block_ref(1),
+            blocks: vec![create_test_verified_block(vec![Transaction::new(vec![
+                1, 2, 3,
+            ])])],
+            timestamp_ms: 1000,
+            commit_ref: create_test_commit_ref(1),
+            reputation_scores_desc: vec![(0, 100)],
+        };
+        let cloned = subdag.clone();
+        assert_eq!(subdag.leader, cloned.leader);
+        assert_eq!(subdag.timestamp_ms, cloned.timestamp_ms);
+        assert_eq!(subdag.commit_ref, cloned.commit_ref);
+        assert_eq!(subdag.blocks.len(), cloned.blocks.len());
+        assert_eq!(subdag.reputation_scores_desc, cloned.reputation_scores_desc);
     }
 
     #[test]
@@ -170,6 +195,24 @@ mod tests {
         assert_eq!(
             verified_block.block.transactions().len(),
             deserialized.block.transactions().len()
+        );
+        // Verify digest is preserved
+        assert_eq!(verified_block.digest, deserialized.digest);
+        // Verify transaction data is preserved
+        assert_eq!(
+            verified_block.block.transactions(),
+            deserialized.block.transactions()
+        );
+    }
+
+    #[test]
+    fn test_verified_block_clone() {
+        let verified_block = create_test_verified_block(vec![Transaction::new(vec![1, 2, 3])]);
+        let cloned = verified_block.clone();
+        assert_eq!(verified_block.digest, cloned.digest);
+        assert_eq!(
+            verified_block.block.transactions(),
+            cloned.block.transactions()
         );
     }
 }
