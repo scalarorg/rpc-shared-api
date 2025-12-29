@@ -26,7 +26,12 @@ mod tests {
     fn create_test_block_ref(round: u64) -> BlockRef {
         let mut digest = [0u8; 32];
         digest[0] = round as u8;
-        BlockRef { digest, round }
+        BlockRef {
+            digest,
+            round,
+            leader_address: String::new(),
+            ..Default::default()
+        }
     }
 
     fn create_test_commit_ref(round: usize) -> CommitRef {
