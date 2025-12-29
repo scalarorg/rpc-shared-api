@@ -10,8 +10,10 @@ pub const DIGEST_LENGTH: usize = 32;
 pub type AuthorityIndex = u32;
 
 /// Block reference - a unique identifier for a block
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Default)]
 pub struct BlockRef {
+    /// The address of the leader in format 0x{20-bytes hex string}
+    pub leader_address: String,
     /// The digest of the block
     pub digest: [u8; DIGEST_LENGTH],
     /// The round number
@@ -77,14 +79,20 @@ mod tests {
         let block_ref1 = BlockRef {
             digest: digest1,
             round: 10,
+            leader_address: String::new(),
+            ..Default::default()
         };
         let block_ref2 = BlockRef {
             digest: digest1,
             round: 10,
+            leader_address: String::new(),
+            ..Default::default()
         };
         let block_ref3 = BlockRef {
             digest: digest1,
             round: 11,
+            leader_address: String::new(),
+            ..Default::default()
         };
         assert_eq!(block_ref1, block_ref2);
         assert_ne!(block_ref1, block_ref3);
@@ -94,7 +102,12 @@ mod tests {
     fn test_block_ref_serialization() {
         let mut digest = [0u8; DIGEST_LENGTH];
         digest[0] = 42;
-        let block_ref = BlockRef { digest, round: 100 };
+        let block_ref = BlockRef {
+            digest,
+            round: 100,
+            leader_address: String::new(),
+            ..Default::default()
+        };
         let serialized = serde_json::to_string(&block_ref).unwrap();
         let deserialized: BlockRef = serde_json::from_str(&serialized).unwrap();
         assert_eq!(block_ref, deserialized);
