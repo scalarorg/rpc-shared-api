@@ -48,7 +48,7 @@ mod tests {
         let reputation_scores = vec![(0, 100), (1, 90)];
 
         let subdag = MysticetiCommittedSubdag {
-            leader,
+            leader: leader.clone(),
             transactions: transactions.clone(),
             timestamp_ms: 1234567890,
             commit_ref,
